@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}
+  TO-DO
+{% endblock title %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row row justify-content-center text-center">
+    <div class="col-sm-6 login-section-wrapper">
+      <div class="login-wrapper my-auto">
+        <h1 class="login-title">Log in</h1>
+        {% if messages %} {% for message in messages%}
+        <h1 class="login-title badge badge-light" style="color: red">
+          {{message}}
+        </h1>
+        {% endfor%} {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="username">Username </label>
+            <input
+              type="text"
+              name="username"
+              id="username"
+              class="form-control"
+              placeholder="Write Your Username"
+            />
+          </div>
+          <div class="form-group mb-4">
+            <label for="password">Password</label>
+            <input
+              type="password"
+              name="password"
+              id="password"
+              class="form-control"
+              placeholder="enter your passsword"
+            />
+          </div>
+          <input
+            name="login"
+            id="login"
+            class="btn btn-danger login-btn"
+            type="submit"
+            value="Login"
+          />
+        </form>
+        <!-- <a href="#!" class="forgot-password-link">Forgot password?</a> -->
+        <p class="login-wrapper-footer-text">
+          Don't have an account?
+          <a href="/auth/signup" class="text-reset"
+            >Signup here</a
+          >
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}
+{% block body %}
+
+{% endblock body %}
