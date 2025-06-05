@@ -1,52 +1,59 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect,get_object_or_404
 from .models import todo  # Importing the todo model to interact with the database
 from django.db import IntegrityError
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 
 # ==================================================================
-# Index view - renders the main page
+@login_required
 def index(request):
-    return render(request, "index.html")  # Renders the main index page for the application
+    return render(request, "index.html")  
 
 # ==================================================================
-# todolist view - handles displaying, creating, and adding tasks
 def todolist(request):
-    # Check if the request is a POST request (indicating form submission)
     if request.method == 'POST':
-        task = request.POST.get('task')  # Retrieve the task name from the form
-        if task:  # Only create if the task is not empty
-            # Check if the task already exists for the user
+        task = request.POST.get('task')  
+        if task:  
             if todo.objects.filter(user=request.user, todo_name=task).exists():
-                messages.error(request, "This task already exists.")  # Show error if task already exists
+                messages.error(request, "This task already exists.")  
             else:
-                # Create a new to-do task with the current user as the owner
                 new_todo = todo(user=request.user, todo_name=task)
-                new_todo.save()  # Save the new task to the database
+                new_todo.save()  
     
-    # Retrieve all to-do items for the current user
     all_todos = todo.objects.filter(user=request.user)
     context = {
-        'todos': all_todos  # Pass the list of tasks to the template
+        'todos': all_todos  
     }
-    return render(request, "todo.html", context)  # Render the to-do list page with all tasks
+    return render(request, "todo.html", context)  
 
 # ==================================================================
 
-# DeleteTask view - handles deleting a specific task
 def DeleteTask(request, name):
     try:
-        # Retrieve the task by name and user to ensure the user only deletes their own tasks
         get_todo = todo.objects.get(user=request.user, todo_name=name)
-        get_todo.delete()  # Delete the task from the database
+        get_todo.delete()  
     except todo.DoesNotExist:
-        pass  # If the task doesn't exist, do nothing (optional: add a message to inform the user)
+        pass  
 
-    return redirect('todolist')  # Redirect back to the to-do list page
-
-# Update view - marks a task as completed
+    return redirect('todolist')  
 def Update(request, name):
-    # Retrieve the specific to-do item by name and user
     get_todo = todo.objects.get(user=request.user, todo_name=name)
-    get_todo.status = True  # Set the task status to completed
-    get_todo.save()  # Save the updated status to the database
-    return redirect('todolist')  # Redirect back to the to-do list page
+    get_todo.status = True  
+    get_todo.save()  
+    return redirect('todolist')  
+# --------------------------------------------------------------------
+def EditTask(request, name):
+    task = get_object_or_404(todo, user=request.user, todo_name=name)
+
+    if request.method == 'POST':
+        new_name = request.POST.get('task')
+        if new_name:
+            if todo.objects.filter(user=request.user, todo_name=new_name).exists():
+                messages.error(request, "This task already exists.")
+                
+            else:
+                task.todo_name = new_name  
+                task.save()  
+                return redirect('todolist')
+
+    return render(request, "edit_task.html", {"task": task})

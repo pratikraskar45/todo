@@ -12,5 +12,5 @@ urlpatterns = [
     
     # Authentication URL - includes URL patterns from the 'authtodo' application
     # This will route requests starting with 'auth/' to 'authtodo' URLs
-    path('auth/', include('authtodo.urls')),
+    path('', include('authtodo.urls')),
 ]
